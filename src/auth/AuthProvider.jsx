@@ -1,6 +1,11 @@
-import { useState } from 'react'
-import { createContext, useContext } from 'react'
-import { api } from '../config/api'
+import { createContext, useContext, useState } from 'react'
+import {
+  addAuthorizationHeaders,
+  api,
+  removeAuthorizationHeaders,
+} from '../config/api'
+
+addAuthorizationHeaders()
 
 const AuthContext = createContext({})
 
@@ -10,18 +15,33 @@ export const AuthProvider = ({ children }) => {
   )
   const [error, setError] = useState(null)
 
-  const login = async ({ email, password }) => {
-    try {
-      const response = await api.post('/users/login', { email, password })
+  const login = async ({ email, password, onSuccess }) => {
+    if (userData) return
+
+    const response = await api.post(
+      '/users/login',
+      { email, password },
+      {
+        validateStatus: () => true, // para que no tire error en el status
+      }
+    )
+    if (response.status === 200) {
       setUserData(response.data)
+      console.log(response.data)
       localStorage.setItem('user', JSON.stringify(response.data))
-    } catch (error) {
-      setError(error.message)
+      addAuthorizationHeaders()
+
+      if (onSuccess) {
+        onSuccess()
+      }
+    } else {
+      setError(response.data.errors)
     }
   }
 
   const logout = () => {
     localStorage.removeItem('user')
+    removeAuthorizationHeaders()
     setUserData(null)
   }
 

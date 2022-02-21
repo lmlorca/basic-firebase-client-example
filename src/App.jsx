@@ -1,30 +1,23 @@
-import { Button } from '@mui/material'
-import { useState } from 'react'
-import { useAuth } from './auth/AuthProvider'
-import { Login } from './components/Login'
-import { PostSummaryList } from './components/PostSummaryList'
-import { Content } from './layout/Content'
+import { Container } from '@mui/material'
+import { Route, Routes } from 'react-router-dom'
 import { Header } from './layout/Header'
+import { LoginPage } from './pages/LoginPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { PostsPage } from './pages/PostsPage'
+import { RegisterPage } from './pages/RegisterPage'
 
 export function App() {
-  const { userData } = useAuth()
-  const [showUserData, setShowUserData] = useState(false)
-
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <Content>
-        {!userData && <Login />}
-        {userData && (
-          <Button onClick={() => setShowUserData(!showUserData)}>
-            {showUserData ? 'Hidde User Data' : 'Show User Data'}
-          </Button>
-        )}
-        {userData && showUserData && (
-          <pre>{JSON.stringify(userData, null, 2)}</pre>
-        )}
-        <PostSummaryList />
-      </Content>
-    </>
+      <Container sx={{ pt: 10 }}>
+        <Routes>
+          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/" element={<PostsPage />} />
+          <Route path="/signin" element={<LoginPage />} />
+          <Route path="/signup" element={<RegisterPage />} />
+        </Routes>
+      </Container>
+    </div>
   )
 }
